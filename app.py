@@ -24,8 +24,12 @@ API_KEY = "AIzaSyAdU0ZkZe6fWgfiN7-Q9GteWSQ19gWsY3I"
 genai.configure(api_key=API_KEY)
 try:
   model = genai.GenerativeModel('gemini-1.5-flash')
+  model.generate_content("test")
 except:
-  model = genai.GenerativeModel('gemini-pro')
+  try:
+    model = genai.GenerativeModel('gemini-pro')
+  except Exception as e:
+      st.error(f"faaaachal{str(e)}")
 
 # 3. واجهة المستخدم
 video_url = st.text_input("🔗 ضعي رابط فيديو اليوتيوب هنا:", placeholder="https://youtube.com/watch?v=...")
