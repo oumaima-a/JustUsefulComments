@@ -18,10 +18,11 @@ st.title("✨ رادار تجارب منتجات العناية")
 # إعداد الـ API
 # نصيحة: تأكدي أن المفتاح ليس به أي فراغات
 API_KEY = "AIzaSyAdU0ZkZe6fWgfiN7-Q9GteWSQ19gWsY3I" 
+os.environ["GOOGLE_API_USE_MTLS_ENDPOINT"]="never"
 genai.configure(api_key=API_KEY)
 
 # استخدام الموديل الأقدم والأكثر استقراراً لتجنب خطأ 404
-model = genai.GenerativeModel('gemini-pro')
+model = genai.GenerativeModel(model_name='gemini-1.5-flash')
 
 video_url = st.text_input("🔗 رابط فيديو اليوتيوب:")
 
@@ -41,7 +42,7 @@ if st.button("🚀 تحليل الآن"):
                     text_to_analyze = "\n".join(raw_comments)
                     prompt = f"حلل هذه التعليقات لمنتج تجميل. استخرج الآراء (إيجابي/سلبي) باختصار باللغة العربية:\n{text_to_analyze}"
                     
-                    response = model.generate_content(prompt)
+                    response = model.generate_content(prompt,request_options={"timeout":600})
                     
                     st.success("تم التحليل بنجاح!")
                     st.markdown("### النتائج:")
