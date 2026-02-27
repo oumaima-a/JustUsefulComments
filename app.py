@@ -13,11 +13,11 @@ try:
     genai.configure(api_key=API_KEY)
 
     with st.expander("فحص الموديلات المتاحة (List Models)"):
-    try:
+     try:
         for m in genai.list_models():
             if 'generateContent' in m.supported_generation_methods:
                 st.write(f"✅ متاح: `{m.name}`")
-    except Exception as e:
+     except Exception as e:
         st.error(f"حدث خطأ أثناء فحص الموديلات: {e}")
 
     # استخدام الموديل المستقر
