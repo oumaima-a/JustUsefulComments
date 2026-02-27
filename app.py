@@ -11,7 +11,15 @@ st.title("✨ رادار تجارب منتجات العناية")
 try:
     API_KEY = st.secrets["GOOGLE_API_KEY"]
     genai.configure(api_key=API_KEY)
-    
+
+    with st.expander("فحص الموديلات المتاحة (List Models)"):
+    try:
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                st.write(f"✅ متاح: `{m.name}`")
+    except Exception as e:
+        st.error(f"حدث خطأ أثناء فحص الموديلات: {e}")
+
     # استخدام الموديل المستقر
     model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception as e:
