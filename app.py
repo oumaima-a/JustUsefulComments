@@ -2,37 +2,68 @@ import streamlit as st
 from youtube_comment_downloader import YoutubeCommentDownloader
 import google.generativeai as genai
 import itertools
+import pandas as pd
 
-# إعداد واجهة التطبيق
-st.set_page_config(page_title="محلل تجارب العناية", layout="wide")
-st.title("🧴 محلل آراء منتجات العناية")
-st.write("ضع رابط فيديو مراجعة لمنتج، وسأقوم باستخراج التجارب الحقيقية فقط (باللهجات العربية).")
+# 1. تنسيق واجهة التطبيق (الجماليات)
+st.set_page_config(page_title="رادار آراء منتجات العناية", page_icon="✨", layout="wide")
 
-# إعداد الجانب الجانبي لوضع المفتاح (أو وضعه مباشرة في الكود)
-api_key = "ضعي_مفتاح_API_الخاص_بكِ_هنا" 
+st.markdown("""
+    <style>
+    .main { background-color: #fff5f7; }
+    .stButton>button { background: linear-gradient(to right, #ff4b2b, #ff416c); color: white; border-radius: 25px; border: none; height: 3em; font-weight: bold; }
+    h1 { color: #ff416c; font-family: 'Arial'; text-align: center; }
+    .status-box { padding: 20px; border-radius: 15px; margin: 10px 0; }
+    </style>
+    """, unsafe_allow_html=True)
 
-if api_key:
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel('gemini-1.5-flash')
+st.title("✨ رادار تجارب منتجات العناية")
+st.write("<h4 style='text-align: center; color: #666;'>استخلصي الحقيقة من التعليقات في ثوانٍ</h4>", unsafe_allow_html=True)
 
-    video_url = st.text_input("رابط فيديو يوتيوب:")
+# 2. إعدادات الـ API (تأكدي أن المفتاح صحيح وبدون مسافات)
+API_KEY = "AIzaSyAdU0ZkZe6fWgfiN7-Q9GteWSQ19gWsY3I" 
+genai.configure(api_key=API_KEY)
+model = genai.GenerativeModel('gemini-1.5-flash')
 
-    if st.button("تحليل التعليقات"):
-        if video_url:
-            with st.spinner('جاري سحب وتحليل التعليقات...'):
-                # 1. سحب التعليقات
+# 3. واجهة المستخدم
+video_url = st.text_input("🔗 ضعي رابط فيديو اليوتيوب هنا:", placeholder="https://youtube.com/watch?v=...")
+
+if st.button("🚀 ابدأ التحليل العميق"):
+    if not video_url:
+        st.warning("الرجاء إدخال الرابط أولاً!")
+    else:
+        try:
+            with st.spinner('جاري جمع آراء الناس...'):
+                # سحب التعليقات
                 downloader = YoutubeCommentDownloader()
                 comments_iter = downloader.get_comments_from_url(video_url, sort_by=1)
-                comments = [c['text'] for c in itertools.islice(comments_iter, 40)] # سحب 40 تعليق للتجربة
+                # سحب عدد قليل (20 تعليق) لتفادي الـ Timeout الذي حدث معكِ
+                raw_comments = [c['text'] for c in itertools.islice(comments_iter, 20)]
                 
-                if comments:
-                    # 2. إرسالها لـ Gemini
-                    prompt = f"حلل هذه التعليقات العربية (مغربي، مصري، خليجي). استخرج فقط التي تحكي تجربة شخصية مع المنتج. صنفه (إيجابي أو سلبي). تجاهل الأسئلة عن السعر أو السلام. التعليقات: {comments}"
+                if not raw_comments:
+                    st.error("تعذر العثور على تعليقات.")
+                else:
+                    # طلب التحليل من Gemini مع تحديد تنسيق واضح
+                    prompt = f"""
+                    حلل التعليقات التالية بلهجاتها العربية المختلفة. 
+                    استخرج فقط الآراء الحقيقية في المنتج. 
+                    صنفها لـ (إيجابي) و (سلبي). 
+                    أعطني النتيجة كقائمة قصيرة جداً ومباشرة.
+                    التعليقات: {raw_comments}
+                    """
                     response = model.generate_content(prompt)
                     
-                    st.subheader("النتائج:")
-                    st.write(response.text)
-                else:
-                    st.error("لم أجد تعليقات في هذا الفيديو.")
-        else:
-            st.warning("الرجاء وضع رابط الفيديو.")
+                    # عرض النتائج بشكل احترافي
+                    st.balloons()
+                    st.markdown("### 📊 ملخص التحليل الذكي")
+                    
+                    col1, col2 = st.columns([2, 1])
+                    
+                    with col1:
+                        st.markdown(f"<div style='background-color: white; padding: 20px; border-radius: 15px; border: 1px solid #ff416c;'>{response.text}</div>", unsafe_allow_html=True)
+                    
+                    with col2:
+                        st.write("💡 **نصيحة التطبيق:**")
+                        st.info("النتائج تعتمد على تحليل عينة من التعليقات باستخدام الذكاء الاصطناعي.")
+
+        except Exception as e:
+            st.error(f"حدثت مشكلة تقنية: {e}")
