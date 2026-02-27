@@ -4,7 +4,7 @@ from youtube_comment_downloader import YoutubeCommentDownloader
 import itertools
 
 # 1. إعدادات الموديل (نفس الذي نجح معكِ في المختبر)
-API_KEY = "ضعي_مفتاحك_هنا" 
+API_KEY = "AIzaSyAdU0ZkZe6fWgfiN7-Q9GteWSQ19gWsY3I" 
 genai.configure(api_key=API_KEY)
 model = genai.GenerativeModel('gemini-1.5-flash')
 
