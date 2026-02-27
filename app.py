@@ -38,7 +38,7 @@ if st.button("🚀 ابدأ التحليل"):
                 raw_comments = [c['text'] for c in itertools.islice(comments_iter, 10)]
                 
                 if raw_comments:
-                    prompt = f"حلل هذه التعليقات باختصار (إيجابي/سلبي): {raw_comments}"
+                    prompt = f"حلل هذه التعليقات باختصار و استخرج فقط تلك التي تحتوي على اراء حول المنتج.لاتستخرج التعليقات الخارجة عن الموضوع كالتي تسأل عن الثمن و صنفها ل (إيجابي/سلبي): {raw_comments}"
                     response = model.generate_content(prompt)
                     st.success("أخيراً! التطبيق يعمل بنجاح.")
                     st.markdown(f"### النتيجة:\n{response.text}")
